@@ -52,7 +52,7 @@ jump to the next search result, and `N` to jump to the previous one.
 
 Try the following steps in order:
 
-1. Run `:tabopen luakit.org`, and wait until the page finishes loading.
+1. Run `:tabopen luakit.github.io`, and wait until the page finishes loading.
 2. Press `d`, and the new tab will close.
 3. Press `u`, and the just-closed tab will reappear.
 
