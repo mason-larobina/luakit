@@ -6,6 +6,7 @@
 
 - Manage dom events with luakit signals.
 - An enable_pdfjs setting to go back to letting viewpdf handle PDFs.
+- `<summary>` elements are now hinted as clickable.
 
 ### Changed
 
