@@ -342,7 +342,7 @@ add_binds("follow", {
 -- @type {[string]=string}
 -- @readwrite
 _M.selectors = {
-    clickable = 'a, area, textarea, select, input:not([type=hidden]), button, label',
+    clickable = 'a, area, textarea, select, input:not([type=hidden]), button, label, summary',
     -- Elements that can be clicked.
     focus = 'a, area, textarea, select, input:not([type=hidden]), button, body, applet, object',
     -- Elements that can be given input focus.
