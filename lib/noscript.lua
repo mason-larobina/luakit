@@ -197,10 +197,8 @@ end
 
 webview.add_signal("init", function (view)
     -- Update on new resource load
-    view:add_signal("policy-decided", function (v, _, _, decision)
-        if decision == "use" then
-            update_webview_blocking(v)
-        end
+    view:add_signal("navigation-request", function (v, _, _)
+        update_webview_blocking(v)
     end)
 
     -- Update on history navigation

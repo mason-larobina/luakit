@@ -16,6 +16,7 @@
 
 - Fixed undoclose bug (and likely some other segfaults)
 - Fixed luaH_init() implicit prototype warning
+- Fixed refresh being needed for the correct NoScript policy to take effect.
 
 ### Contributors to this release:
 
