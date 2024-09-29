@@ -12,6 +12,13 @@
 
 - Don't compress man page. This should be done by maintainers.
 - Removed now unsupported/ignored load-icons-ignoring-image-load-setting.
+- The default WebKit data and cache subdirectories are now used. If you use any
+  website which uses IndexedDB or local storage and wish to retain the saved
+  information, you will need to manually move the corresponding directories to
+  their new locations. Specifically, the mapping is as follows:
+
+  - `$XDG_DATA_HOME/luakit/local_storage -> $XDG_DATA_HOME/luakit/localstorage`
+  - `$XDG_DATA_HOME/luakit/indexeddb -> $XDG_DATA_HOME/luakit/databases/indexeddb`
 
 ### Fixed
 
