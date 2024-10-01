@@ -57,33 +57,17 @@ web_context_process_limit_set(guint limit)
 }
 
 static void
-website_data_dir_init(void)
+website_data_manager_init(void)
 {
-    g_assert(globalconf.data_dir);
-
-    gchar *indexeddb_dir = g_build_filename(globalconf.data_dir, "indexeddb", NULL);
-    gchar *local_storage_dir = g_build_filename(globalconf.data_dir, "local_storage", NULL);
-    gchar *applications_dir = g_build_filename(globalconf.data_dir, "applications", NULL);
-
     WebKitWebsiteDataManager *data_mgr = webkit_website_data_manager_new(
-            "disk-cache-directory", globalconf.cache_dir,
-            "indexeddb-directory", indexeddb_dir,
-            "local-storage-directory", local_storage_dir,
-            "offline-application-cache-directory", applications_dir,
+            "base-cache-directory", globalconf.cache_dir,
+            "base-data-directory", globalconf.data_dir,
             NULL);
-
-    g_free(indexeddb_dir);
-    g_free(local_storage_dir);
-    g_free(applications_dir);
 
     web_context = webkit_web_context_new_with_website_data_manager(data_mgr);
 
     verbose("base_data_directory:                 %s", webkit_website_data_manager_get_base_data_directory(data_mgr));
     verbose("base_cache_directory:                %s", webkit_website_data_manager_get_base_cache_directory(data_mgr));
-    verbose("disk_cache_directory:                %s", webkit_website_data_manager_get_disk_cache_directory(data_mgr));
-    verbose("local_storage_directory:             %s", webkit_website_data_manager_get_local_storage_directory(data_mgr));
-    verbose("offline_application_cache_directory: %s", webkit_website_data_manager_get_offline_application_cache_directory(data_mgr));
-    verbose("indexeddb_directory:                 %s", webkit_website_data_manager_get_indexeddb_directory(data_mgr));
 }
 
 static void
@@ -103,7 +87,7 @@ web_context_set_default_spelling_language(void)
 void
 web_context_init(void)
 {
-    website_data_dir_init();
+    website_data_manager_init();
     webkit_web_context_set_favicon_database_directory(web_context, NULL);
     g_signal_connect(G_OBJECT(web_context), "download-started",
             G_CALLBACK(download_start_cb), NULL);
