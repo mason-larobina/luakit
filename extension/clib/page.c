@@ -16,6 +16,8 @@
  *
  */
 
+#include <jsc/jsc.h>
+
 #include "extension/extension.h"
 #include "extension/clib/page.h"
 #include "extension/clib/dom_document.h"
@@ -140,8 +142,10 @@ luaH_page_eval_js(lua_State *L)
 
     WebKitFrame *frame = webkit_web_page_get_main_frame(page->page);
     WebKitScriptWorld *world = extension.script_world;
-    JSGlobalContextRef ctx = webkit_frame_get_javascript_context_for_script_world(frame, world);
-    return luaJS_eval_js(common.L, ctx, script, source, false);
+    JSCContext *ctx = webkit_frame_get_js_context_for_script_world(frame, world);
+    int ret = luajs_eval_js(common.L, ctx, script, source, 1, false);
+    g_object_unref(ctx);
+    return ret;
 }
 
 static gint

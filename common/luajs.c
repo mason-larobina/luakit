@@ -243,43 +243,87 @@ luaJS_make_exception(JSContextRef context, const gchar *error)
     return JSValueToObject(context, exception, NULL);
 }
 
-gint
-luaJS_eval_js(lua_State *L, JSContextRef context, const gchar *script, const gchar *source, bool no_return)
+/*
+ * Converts JS value to the corresponding Lua type and pushes the result onto
+ * the Lua stack. Returns the number of pushed values, 0 thus signals error.
+ */
+static int luajs_pushvalue(lua_State *L, JSCValue *value)
 {
-
-    JSStringRef js_script;
-    JSValueRef result, exception = NULL;
-
-    /* evaluate the script and get return value*/
-    js_script = JSStringCreateWithUTF8CString(script);
-    result = JSEvaluateScript(context, js_script, NULL, NULL, 0, &exception);
-    JSStringRelease(js_script);
-
-    /* handle javascript exceptions while running script */
-    if (exception) {
+    if (jsc_value_is_undefined(value) || jsc_value_is_null(value))
         lua_pushnil(L);
-        lua_pushstring(L, source);
-        lua_pushstring(L, ": ");
-        if (!luaJS_pushstring(L, context, exception, NULL))
-            lua_pushliteral(L, "Unknown JavaScript exception (unable to "
-                    "convert thrown exception object into string)");
-        lua_concat(L, 3);
+    else if (jsc_value_is_boolean(value))
+        lua_pushboolean(L, jsc_value_to_boolean(value));
+    else if (jsc_value_is_number(value))
+        lua_pushnumber(L, jsc_value_to_double(value));
+    else if (jsc_value_is_string(value)) {
+        char *str = jsc_value_to_string(value);
+        lua_pushstring(L, str);
+        free(str);
+    } else if (jsc_value_is_object(value)) {
+        char **keys = jsc_value_object_enumerate_properties(value);
+        int top = lua_gettop(L);
+        JSCValue *val;
+        char *eptr;
+        char *key;
+        int i = 0;
+        long n;
+
+        lua_newtable(L);
+        while (keys && (key = keys[i++])) {
+            if (*key && (n = strtol(key, &eptr, 10), !*eptr))
+                lua_pushinteger(L, ++n);
+            else
+                lua_pushstring(L, key);
+
+            val = jsc_value_object_get_property(value, key);
+            if (!luajs_pushvalue(L, val)) {
+                g_object_unref(val);
+                lua_settop(L, top);
+                g_strfreev(keys);
+                return 0;
+            }
+            g_object_unref(val);
+            lua_rawset(L, -3);
+        }
+
+        g_strfreev(keys);
+    } else
+        return 0;
+    return 1;
+}
+
+/*
+ * Executes the given JS code in the provided context and pushes the last
+ * generated value onto the Lua stack, unless no_return is set. Code must be a
+ * NUL-terminated string. If error occurs, pushes a nil value and an error
+ * string instead. source and line are only used in the JS execution error
+ * message to specify its origin, they do not affect the execution itself.
+ * Returns the number of values pushed onto the Lua stack.
+ */
+int luajs_eval_js(lua_State *L, JSCContext *ctx, const char *code, const char *source, guint line, bool no_return)
+{
+    JSCValue *result = jsc_context_evaluate_with_source_uri(ctx, code, -1, source, line);
+
+    JSCException *exception = jsc_context_get_exception(ctx);
+    if (exception) {
+        char *e = jsc_exception_to_string(exception);
+        lua_pushnil(L);
+        lua_pushstring(L, e);
+        free(e);
         return 2;
     }
 
     if (no_return)
         return 0;
 
-    /* push return value onto lua stack */
-    gchar *error = NULL;
-    if (luaJS_pushvalue(L, context, result, &error))
-        return 1;
-
-    /* handle type conversion errors */
-    lua_pushnil(L);
-    lua_pushstring(L, error);
-    g_free(error);
-    return 2;
+    int ret = luajs_pushvalue(L, result);
+    g_object_unref(result);
+    if (!ret) {
+        lua_pushnil(L);
+        lua_pushstring(L, "unable to push the result onto the Lua stack");
+        return 2;
+    }
+    return ret;
 }
 
 // vim: ft=c:et:sw=4:ts=8:sts=4:tw=80

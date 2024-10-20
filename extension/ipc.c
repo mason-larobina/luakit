@@ -16,6 +16,7 @@
  *
  */
 
+#include <jsc/jsc.h>
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,8 +104,9 @@ ipc_recv_eval_js(ipc_endpoint_t *UNUSED(ipc), const guint8 *msg, guint length)
 
     WebKitFrame *frame = webkit_web_page_get_main_frame(page);
     WebKitScriptWorld *world = webkit_script_world_get_default();
-    JSGlobalContextRef ctx = webkit_frame_get_javascript_context_for_script_world(frame, world);
-    n = luaJS_eval_js(L, ctx, script, source, no_return);
+    JSCContext *ctx = webkit_frame_get_js_context_for_script_world(frame, world);
+    n = luajs_eval_js(L, ctx, script, source, 1, no_return);
+    g_object_unref(ctx);
     /* Send [page_id, cb, ret] or [page_id, cb, nil, error] */
     ipc_send_lua(extension.ipc, IPC_TYPE_eval_js, L, -n-2, -1);
     lua_settop(L, top);
