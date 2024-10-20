@@ -18,7 +18,6 @@
  *
  */
 
-#include <JavaScriptCore/JavaScript.h>
 #include <stdlib.h>
 
 #include "common/luajs.h"
