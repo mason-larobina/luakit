@@ -181,7 +181,7 @@ local function bounding_boxes_intersect(a, b)
     return true
 end
 
-local function get_element_bb_if_visible(element, wbb, page)
+local function get_element_bb_if_visible(element, wbb, client_rects)
     -- Find the element bounding box
     local r
 
@@ -193,29 +193,6 @@ local function get_element_bb_if_visible(element, wbb, page)
         if #r == 0 then return nil end
         r = r[1]
     else
-        local client_rects = page:wrap_js([=[
-        function client_rects(element) {
-            var rects = element.getClientRects();
-            if (rects.length == 0)
-                return undefined;
-            var rect = {
-                "top": rects[0].top,
-                "bottom": rects[0].bottom,
-                "left": rects[0].left,
-                "right": rects[0].right,
-            };
-            for (var i = 1; i < rects.length; i++) {
-                rect.top = Math.min(rect.top, rects[i].top);
-                rect.bottom = Math.max(rect.bottom, rects[i].bottom);
-                rect.left = Math.min(rect.left, rects[i].left);
-                rect.right = Math.max(rect.right, rects[i].right);
-            }
-            rect.width = rect.right - rect.left;
-            rect.height = rect.bottom - rect.top;
-            return rect;
-        }
-        client_rects;
-        ]=])
         r = client_rects(element) or element.rect
     end
 
@@ -251,14 +228,14 @@ local function get_element_bb_if_visible(element, wbb, page)
     if element.tag_name == "A" then
         local first = element.first_child
         if first and first.tag_name == "IMG" and not first.next_sibling then
-            return get_element_bb_if_visible(first, wbb, page) or rbb
+            return get_element_bb_if_visible(first, wbb, client_rects) or rbb
         end
     end
 
     return rbb
 end
 
-local function frame_find_hints(page, frame, elements)
+local function frame_find_hints(client_rects, frame, elements)
     local hints = {}
 
     if type(elements) == "string" then
@@ -283,7 +260,7 @@ local function frame_find_hints(page, frame, elements)
     }
 
     for _, element in ipairs(elements) do
-        local rbb = get_element_bb_if_visible(element,wbb, page)
+        local rbb = get_element_bb_if_visible(element,wbb, client_rects)
 
         if rbb then
             local text = ""
@@ -463,11 +440,35 @@ function _M.enter(page, elements, stylesheet, ignore_case)
     state.hints = {}
     state.ignore_case = ignore_case or false
 
+    local client_rects = page:wrap_js([=[
+        function client_rects(element) {
+            var rects = element.getClientRects();
+            if (rects.length == 0)
+                return undefined;
+            var rect = {
+                "top": rects[0].top,
+                "bottom": rects[0].bottom,
+                "left": rects[0].left,
+                "right": rects[0].right,
+            };
+            for (var i = 1; i < rects.length; i++) {
+                rect.top = Math.min(rect.top, rects[i].top);
+                rect.bottom = Math.max(rect.bottom, rects[i].bottom);
+                rect.left = Math.min(rect.left, rects[i].left);
+                rect.right = Math.max(rect.right, rects[i].right);
+            }
+            rect.width = rect.right - rect.left;
+            rect.height = rect.bottom - rect.top;
+            return rect;
+        }
+        client_rects;
+    ]=])
+
     -- Find all hints in the viewport
     for _, frame in ipairs(state.frames) do
         -- Set up the frame, and find hints
         init_frame(frame, stylesheet)
-        frame.hints = frame_find_hints(page, frame, elements)
+        frame.hints = frame_find_hints(client_rects, frame, elements)
         -- Build an array of all hints
         for _, hint in ipairs(frame.hints) do
             state.hints[#state.hints+1] = hint
