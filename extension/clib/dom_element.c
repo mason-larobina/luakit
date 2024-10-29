@@ -20,7 +20,7 @@
 #define WEBKIT_DOM_USE_UNSTABLE_API
 #include <webkitdom/WebKitDOMElementUnstable.h>
 #include <webkitdom/WebKitDOMDOMWindowUnstable.h>
-#include <JavaScriptCore/JavaScript.h>
+#include <jsc/jsc.h>
 
 #include "extension/clib/dom_element.h"
 #include "extension/clib/dom_document.h"
@@ -167,29 +167,22 @@ dom_element_selector(dom_element_t *element)
     return sel;
 }
 
-JSValueRef
+JSCValue *
 dom_element_js_ref(page_t *page, dom_element_t *element)
 {
     gchar *sel = dom_element_selector(element);
 
-    /* Get JSValueRef to document.getElementById() */
     WebKitFrame *frame = webkit_web_page_get_main_frame(page->page);
     WebKitScriptWorld *world = extension.script_world;
-    JSGlobalContextRef ctx = webkit_frame_get_javascript_context_for_script_world(frame, world);
+    JSCContext *ctx = webkit_frame_get_js_context_for_script_world(frame, world);
 
-    JSObjectRef js_global = JSContextGetGlobalObject(ctx);
-    JSStringRef doc_key = JSStringCreateWithUTF8CString("document");
-    JSStringRef query_key = JSStringCreateWithUTF8CString("querySelector");
-    JSStringRef sel_key = JSStringCreateWithUTF8CString(sel);
-    JSValueRef sel_val = JSValueMakeString(ctx, sel_key);
+    JSCValue *js_global = jsc_context_get_global_object(ctx);
+    JSCValue *js_doc = jsc_value_object_get_property(js_global, "document");
+    JSCValue *ret = jsc_value_object_invoke_method(js_doc, "querySelector", G_TYPE_STRING, sel, G_TYPE_NONE);
 
-    JSValueRef js_doc = JSObjectGetProperty(ctx, js_global, doc_key, NULL);
-    JSValueRef js_get_elem = JSObjectGetProperty(ctx, (JSObjectRef)js_doc, query_key, NULL);
-    JSValueRef ret = JSObjectCallAsFunction(ctx, (JSObjectRef)js_get_elem, (JSObjectRef)js_doc, 1, &sel_val, NULL);
-
-    JSStringRelease(doc_key);
-    JSStringRelease(query_key);
-    JSStringRelease(sel_key);
+    g_object_unref(js_doc);
+    g_object_unref(js_global);
+    g_object_unref(ctx);
     g_free(sel);
 
     return ret;

@@ -34,6 +34,8 @@ JSValueRef luaJS_tovalue(lua_State *L, JSContextRef context, gint idx, gchar **e
 JSValueRef luaJS_make_exception(JSContextRef context, const gchar *error);
 
 int luajs_eval_js(lua_State *L, JSCContext *ctx, const char *code, const char *source, guint line, bool no_return);
+int luajs_pushvalue(lua_State *L, JSCValue *value);
+JSCValue *luajs_tovalue(lua_State *L, int idx, JSCContext *ctx);
 
 #endif /* end of include guard: LUAKIT_COMMON_LUAJS_H */
 
