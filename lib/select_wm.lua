@@ -194,6 +194,7 @@ local function get_element_bb_if_visible(element, wbb, page)
         r = r[1]
     else
         local client_rects = page:wrap_js([=[
+        function client_rects(element) {
             var rects = element.getClientRects();
             if (rects.length == 0)
                 return undefined;
@@ -212,7 +213,9 @@ local function get_element_bb_if_visible(element, wbb, page)
             rect.width = rect.right - rect.left;
             rect.height = rect.bottom - rect.top;
             return rect;
-        ]=], {"element"})
+        }
+        client_rects;
+        ]=])
         r = client_rects(element) or element.rect
     end
 

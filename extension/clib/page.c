@@ -151,27 +151,26 @@ luaH_page_eval_js(lua_State *L)
 static gint
 luaH_page_js_func(lua_State *L)
 {
-    const void *ctx = lua_topointer(L, lua_upvalueindex(1));
-    const void *func = lua_topointer(L, lua_upvalueindex(2));
-    page_t *page = luaH_check_page(L, lua_upvalueindex(3));
+    JSCValue *func = (JSCValue *)lua_topointer(L, lua_upvalueindex(1));
+    page_t *page = luaH_check_page(L, lua_upvalueindex(2));
+    JSCContext *ctx = jsc_value_get_context(func);
 
     gint argc = lua_gettop(L);
-    JSValueRef *args = argc > 0 ? g_alloca(sizeof(*args)*argc) : NULL;
+    JSCValue **args = argc > 0 ? g_alloca(sizeof(*args)*argc) : NULL;
     for (gint i = 0; i < argc; i++) {
         dom_element_t *elem = luaH_to_dom_element(L, i+1);
-        /* Custom handling of dom_element_t objects here because luaJS_tovalue()
+        /* Custom handling of dom_element_t objects here because luajs_tovalue()
          * is defined in common/, which is shared in the main process, and the
          * main process is not aware of the extension/clib/ stuff */
         if (elem)
             args[i] = dom_element_js_ref(page, elem);
         else
-            args[i] = luaJS_tovalue(L, ctx, i+1, NULL);
+            args[i] = luajs_tovalue(L, i+1, ctx);
     }
 
     /* Call the function */
-    JSValueRef ret = JSObjectCallAsFunction(ctx, (JSObjectRef)func, NULL, argc, args, NULL);
-    luaJS_pushvalue(L, ctx, ret, NULL);
-    return 1;
+    JSCValue *ret = jsc_value_function_callv(func, argc, args);
+    return luajs_pushvalue(L, ret);
 }
 
 static gint
@@ -179,36 +178,26 @@ luaH_page_wrap_js(lua_State *L)
 {
     page_t *page = luaH_check_page(L, 1);
     const gchar *script = luaL_checkstring(L, 2);
-    if (!lua_isnil(L, 3))
-        luaH_checktable(L, 3);
 
     /* Get the page JS context */
     WebKitFrame *frame = webkit_web_page_get_main_frame(page->page);
     WebKitScriptWorld *world = extension.script_world;
-    JSGlobalContextRef ctx = webkit_frame_get_javascript_context_for_script_world(frame, world);
+    JSCContext *ctx = webkit_frame_get_js_context_for_script_world(frame, world);
 
-    /* Construct argument names array */
-    int argc = lua_objlen(L, 3), i = 0;
-    JSStringRef *args = argc > 0 ? g_alloca(sizeof(*args)*argc) : NULL;
+    JSCValue *func = jsc_context_evaluate(ctx, script, -1);
+    JSCException *exception = jsc_context_get_exception(ctx);
+    g_object_unref(ctx);
 
-    /* {}, index, tbl val */
-    if (argc > 0) {
-        while (lua_pushnumber(L, ++i), lua_rawget(L, -2), !lua_isnil(L, -1)) {
-            luaL_checktype(L, -1, LUA_TSTRING);
-            const char *name = lua_tostring(L, -1);
-            args[i-1] = JSStringCreateWithUTF8CString(name);
-            lua_pop(L, 1);
-        }
+    if (exception) {
+        char *e = jsc_exception_to_string(exception);
+        lua_pushstring(L, e);
+        free(e);
+        lua_error(L);
     }
 
-    /* Convert script to a JS function */
-    JSStringRef body = JSStringCreateWithUTF8CString(script);
-    JSObjectRef func = JSObjectMakeFunction(ctx, NULL, argc, args, body, NULL, 1, NULL);
-
-    lua_pushlightuserdata(L, ctx);
     lua_pushlightuserdata(L, func);
     lua_pushvalue(L, 1);
-    lua_pushcclosure(L, luaH_page_js_func, 3);
+    lua_pushcclosure(L, luaH_page_js_func, 2);
 
     return 1;
 }
