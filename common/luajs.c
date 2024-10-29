@@ -233,6 +233,69 @@ luaJS_tovalue(lua_State *L, JSContextRef context, gint idx, gchar **error)
     return JSValueMakeUndefined(context);
 }
 
+/*
+ * Converts Lua value referenced by idx to the corresponding JavaScript type.
+ * Returns NULL on failure.
+ */
+JSCValue *luajs_tovalue(lua_State *L, int idx, JSCContext *ctx)
+{
+    switch (lua_type(L, idx)) {
+        case LUA_TBOOLEAN:
+            return jsc_value_new_boolean(ctx, lua_toboolean(L, idx));
+        case LUA_TNUMBER:
+            return jsc_value_new_number(ctx, lua_tonumber(L, idx));
+        case LUA_TNIL:
+            return jsc_value_new_null(ctx);
+        case LUA_TNONE:
+            return jsc_value_new_undefined(ctx);
+        case LUA_TSTRING:
+            return jsc_value_new_string(ctx, lua_tostring(L, idx));
+        case LUA_TTABLE:
+            ;
+            size_t len = lua_objlen(L, idx);
+            int top = lua_gettop(L);
+            JSCValue *res, *val;
+
+            if (idx < 0)
+                idx += top + 1;
+
+            if (len) {
+                res = jsc_value_new_array(ctx, G_TYPE_NONE);
+                lua_pushnil(L);
+                int i = 0;
+                while (lua_next(L, idx)) {
+                    val = luajs_tovalue(L, -1, ctx);
+                    if (!val) {
+                        lua_settop(L, top);
+                        g_object_unref(res);
+                        return NULL;
+                    }
+                    jsc_value_object_set_property_at_index(res, i++, val);
+                    lua_pop(L, 1);
+                    g_object_unref(val);
+                }
+            } else {
+                res = jsc_value_new_object(ctx, NULL, NULL);
+                lua_pushnil(L);
+                while (lua_next(L, idx)) {
+                    if (lua_type(L, -2) != LUA_TSTRING)
+                        continue;
+                    val = luajs_tovalue(L, -1, ctx);
+                    if (!val) {
+                        lua_settop(L, top);
+                        g_object_unref(res);
+                        return NULL;
+                    }
+                    jsc_value_object_set_property(res, lua_tostring(L, -2), val);
+                    lua_pop(L, 1);
+                    g_object_unref(val);
+                }
+            }
+            return res;
+    }
+    return NULL;
+}
+
 /* create JavaScript exception object from string */
 JSValueRef
 luaJS_make_exception(JSContextRef context, const gchar *error)
@@ -247,7 +310,7 @@ luaJS_make_exception(JSContextRef context, const gchar *error)
  * Converts JS value to the corresponding Lua type and pushes the result onto
  * the Lua stack. Returns the number of pushed values, 0 thus signals error.
  */
-static int luajs_pushvalue(lua_State *L, JSCValue *value)
+int luajs_pushvalue(lua_State *L, JSCValue *value)
 {
     if (jsc_value_is_undefined(value) || jsc_value_is_null(value))
         lua_pushnil(L);

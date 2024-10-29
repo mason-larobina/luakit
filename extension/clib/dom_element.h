@@ -54,7 +54,7 @@ typedef struct _dom_element_t {
 
 void dom_element_class_setup(lua_State *);
 gint luaH_dom_element_from_node(lua_State *L, WebKitDOMElement* node);
-JSValueRef dom_element_js_ref(page_t *page, dom_element_t *element);
+JSCValue *dom_element_js_ref(page_t *page, dom_element_t *element);
 dom_element_t * luaH_to_dom_element(lua_State *L, gint idx);
 
 #endif
