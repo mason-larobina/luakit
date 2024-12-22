@@ -69,7 +69,6 @@
 --  - `enable_javascript`
 --  - `enable_mediasource`
 --  - `enable_media_stream`
---  - `enable_offline_web_application_cache`
 --  - `enable_page_cache`
 --  - `enable_plugins`
 --  - `enable_private_browsing`

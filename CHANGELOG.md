@@ -13,6 +13,7 @@
 
 - Don't compress man page. This should be done by maintainers.
 - Removed now unsupported/ignored load-icons-ignoring-image-load-setting.
+- Removed now unsupported/ignored offline_web_application_cache setting.
 - The default WebKit data and cache subdirectories are now used. If you use any
   website which uses IndexedDB or local storage and wish to retain the saved
   information, you will need to manually move the corresponding directories to

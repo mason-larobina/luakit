@@ -36,7 +36,6 @@ enable_caret_browsing
 enable_developer_extras
 enable_html5_database
 enable_html5_local_storage
-enable_offline_web_application_cache
 enable_page_cache
 enable_plugins
 enable_scripts

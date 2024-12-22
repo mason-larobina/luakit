@@ -558,11 +558,6 @@ local webview_settings = {
         default = false,
         desc = "Whether to allow web pages to access audio and video devices for capture.",
     },
-    ["webview.enable_offline_web_application_cache"] = {
-        type = "boolean",
-        default = true,
-        desc = "Whether to enable offline web application support." ,
-    },
     ["webview.enable_page_cache"] = {
         type = "boolean",
         default = true,
