@@ -19,19 +19,10 @@
 #ifndef LUAKIT_COMMON_LUAJS_H
 #define LUAKIT_COMMON_LUAJS_H
 
-#include <JavaScriptCore/JavaScript.h>
 #include <jsc/jsc.h>
-#include <stdlib.h>
+#include <stdbool.h>
 #include <glib.h>
 #include <lua.h>
-
-gchar* tostring(JSContextRef context, JSValueRef value, gchar **error);
-gint luaJS_pushstring(lua_State *L, JSContextRef context, JSValueRef value, gchar **error);
-gint luaJS_pushobject(lua_State *L, JSContextRef context, JSObjectRef obj, gchar **error);
-gint luaJS_pushvalue(lua_State *L, JSContextRef context, JSValueRef value, gchar **error);
-JSValueRef luaJS_fromtable(lua_State *L, JSContextRef context, gint idx, gchar **error);
-JSValueRef luaJS_tovalue(lua_State *L, JSContextRef context, gint idx, gchar **error);
-JSValueRef luaJS_make_exception(JSContextRef context, const gchar *error);
 
 int luajs_eval_js(lua_State *L, JSCContext *ctx, const char *code, const char *source, guint line, bool no_return);
 int luajs_pushvalue(lua_State *L, JSCValue *value);
