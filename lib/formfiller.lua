@@ -207,7 +207,7 @@ local function read_formfiller_rules_from_file()
     setfenv(dsl, env)
     local success, err = pcall(dsl)
     if not success then
-        msg.warn("error in " .. file .. ": " .. err)
+        msg.warn("error in %s: %s", file, err)
     end
     return state.rules
 end
