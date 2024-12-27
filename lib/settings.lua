@@ -412,6 +412,11 @@ new_settings_node = function (prefix, section)
     meta.__newindex = function (_, k, v)
         local full_path = (prefix and (prefix..".") or "") .. k
         local type = get_settings_path_type(full_path)
+            if string.match(full_path, "zoom_text_only") or
+               string.match(full_path, "enable_offline_web_application_cache") or
+               string.match(full_path, "load-icons-ignoring-image-load-setting")
+               then msg.verbose("Ignoring setting: %s", full_path) return
+            end
         if type == "value" then
             local setter = settings_list[full_path].type:find(":") and S_overwrite_table or S_set
             setter(meta.section, full_path, v)
