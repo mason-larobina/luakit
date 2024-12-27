@@ -28,6 +28,7 @@
 - Fixed luaH_init() implicit prototype warning
 - Fixed refresh being needed for the correct NoScript policy to take effect.
 - Fixes occasional zoom_level reset on start, reset or navigation
+- Show proper error message when the formfiller module can't parse form.lua
 
 ### Contributors to this release:
 
