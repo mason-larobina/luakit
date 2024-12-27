@@ -700,11 +700,11 @@ local webview_settings = {
         default = 100,
         desc = "The default zoom level, as a percentage, at which to draw content.",
     },
-    ["webview.zoom_text_only"] = {
-        type = "boolean",
-        default = false,
-        desc = "Whether zooming the page should affect the size of all elements, or only the text content.",
-    },
+--    ["webview.zoom_text_only"] = {
+--        type = "boolean",
+--        default = false,
+--        desc = "Whether zooming the page should affect the size of all elements, or only the text content.",
+--    },
 }
 settings.register_settings(webview_settings)
 settings.register_settings({
@@ -726,6 +726,10 @@ _M.add_signal("init", function (view)
             k = k:sub(9) -- Strip off prefix
             if k == "zoom_level" then v = v/100.0 end
             if k == "user_agent" and v == "" then v = nil end
+            -- bug: when zoom_text_only is loaded after zoom_level,
+            -- the zoom_level resets to 0.5. Keep zoom_text_only ignored
+            -- until the settings can be applied in a controlled order
+            if k == "zoom_text_only" then return end
             match = match and (" (matched '"..match.."')") or ""
             msg.verbose("setting property %s = %s" .. match, k, v, match)
             wv[k] = v
