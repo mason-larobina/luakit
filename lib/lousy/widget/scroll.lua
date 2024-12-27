@@ -27,8 +27,8 @@ local widgets = {
             y, max = tonumber(y), tonumber(max)
             local text
             if     max == 0   then text = "All"
-            elseif y   == 0   then text = "Top"
-            elseif y   == max then text = "Bot"
+            elseif y   <= 2   then text = "Top"
+            elseif y   >= (max - 2) then text = "Bot"
             else text = string.format("%2d%%", (y / max) * 100)
             end
             if label.text ~= text then label.text = text end
