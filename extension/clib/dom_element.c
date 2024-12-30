@@ -860,7 +860,7 @@ luaH_dom_element_push_document(lua_State *L)
         doc = webkit_dom_html_iframe_element_get_content_document(
                 WEBKIT_DOM_HTML_IFRAME_ELEMENT(element->element));
     } else
-        return 0;
+        doc = webkit_dom_node_get_owner_document(WEBKIT_DOM_NODE(element->element));
 
     return luaH_dom_document_from_webkit_dom_document(L, doc);
 }

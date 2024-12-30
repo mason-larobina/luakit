@@ -32,6 +32,8 @@
 - Fixes occasional zoom_level reset on start, reset or navigation
 - Show proper error message when the formfiller module can't parse form.lua
 - Fixed the scroll widget getting stuck at 99% instead of showing "Bot"
+- Fixed the document property of the instance of the dom_element class to work
+  for elements that are not part of a subframe.
 
 ### Contributors to this release:
 
