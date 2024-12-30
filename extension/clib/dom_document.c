@@ -67,13 +67,6 @@ luaH_dom_document_from_webkit_dom_document(lua_State *L, WebKitDOMDocument *doc)
     return 1;
 }
 
-gint
-luaH_dom_document_from_web_page(lua_State *L, WebKitWebPage *web_page)
-{
-    WebKitDOMDocument *doc = webkit_web_page_get_dom_document(web_page);
-    return luaH_dom_document_from_webkit_dom_document(L, doc);
-}
-
 static gint
 luaH_dom_document_gc(lua_State *L)
 {
