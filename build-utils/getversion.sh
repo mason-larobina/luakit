@@ -19,6 +19,14 @@ then
     VERSION_FROM_GIT=`git describe --tags --always`
 fi
 
+# In case of a worktree checkout, there is not .git directory, but a
+# .git file, which contains the path to the branch information within
+# the git repository. In this case, "git describe" works too.
+if [ -f .git -a -r .git ] && grep -q ^gitdir .git
+then
+    VERSION_FROM_GIT=`git describe --tags --always`
+fi
+
 if [ x"$VERSION_FROM_GIT" != x ]; then
     echo $VERSION_FROM_GIT; exit 0;
 fi
@@ -27,8 +35,8 @@ if [ "$VERSION_FROM_ARCHIVE" != ':%H$' ]; then
     echo $VERSION_FROM_ARCHIVE | cut -b1-8; exit 0;
 fi
 
-echo "ERROR: Commit hash detection failure. Dear packager, please figure out"\
-     "what has gone wrong and or get in touch with us." >&2
+echo "ERROR: Git commit hash detection failed: Please check why "
+     "build-utils/getversion.sh is failing in your setup and get in touch with us." >&2
 
 exit 2
 

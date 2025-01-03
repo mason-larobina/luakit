@@ -30,6 +30,7 @@
 - Fixes occasional zoom_level reset on start, reset or navigation
 - Show proper error message when the formfiller module can't parse form.lua
 - Fixed the scroll widget getting stuck at 99% instead of showing "Bot"
+- Fixed build in a git worktree checkout 
 
 ### Contributors to this release:
 
