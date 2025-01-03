@@ -24,7 +24,6 @@
 
 ### Fixed
 
-- Fixed undoclose bug (and likely some other segfaults)
 - Fixed luaH_init() implicit prototype warning
 - Fixed refresh being needed for the correct NoScript policy to take effect.
 - Fixes occasional zoom_level reset on start, reset or navigation
@@ -34,6 +33,7 @@
 
 ### Contributors to this release:
 
+- @balejk
 - @c0dev0id
 - @msdemlei
 - @serg-kozhemyakin
