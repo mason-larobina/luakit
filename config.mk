@@ -8,7 +8,7 @@ CPPFLAGS   +=
 PKG_CONFIG ?= pkg-config
 
 # Get current luakit version.
-VERSION    ?= $(shell ./build-utils/getversion.sh)
+VERSION    := $(shell ./build-utils/getversion.sh)
 CPPFLAGS   += -DVERSION=\"$(VERSION)\"
 
 # === Default build options ==================================================
