@@ -178,9 +178,6 @@ local error_page = require "error_page"
 -- Add userstyles loader
 local styles = require "styles"
 
--- Hide scrollbars on all pages
-local hide_scrollbars = require "hide_scrollbars"
-
 -- Add a stylesheet when showing images
 local image_css = require "image_css"
 
