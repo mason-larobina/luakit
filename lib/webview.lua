@@ -642,7 +642,7 @@ local webview_settings = {
             ["always"] = { desc = "Always enable hardware acceleration.", label = "Always", },
             ["never"] = { desc = "Always disable hardware acceleration.", label = "Never", },
         },
-        default = "on-demand",
+        default = "always",
         desc = "The policy used to determine when hardware acceleration should be used to render web content.",
     },
     ["webview.javascript_can_access_clipboard"] = {

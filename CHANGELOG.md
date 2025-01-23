@@ -18,6 +18,9 @@
 - Removed now unsupported/ignored offline_web_application_cache setting.
 - The `hide_scrollbars` module is now not loaded as a part of the default
   `rc.lua` as hiding the scrollbars causes issues with smooth scrolling.
+- The hardware acceleration policy setting now defaults to always since
+  on-demand has been reported to cause rendering issues on at least some
+  systems.
 - The default WebKit data and cache subdirectories are now used. If you use any
   website which uses IndexedDB or local storage and wish to retain the saved
   information, you will need to manually move the corresponding directories to
