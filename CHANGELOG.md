@@ -32,6 +32,7 @@
 ### Fixed
 
 - Fixed build in a git worktree checkout 
+- Fixed undoclose test sequence issue
 - Fixed luaH_init() implicit prototype warning
 - Fixed refresh being needed for the correct NoScript policy to take effect.
 - Fixes occasional zoom_level reset on start, reset or navigation
