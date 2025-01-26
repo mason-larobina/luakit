@@ -739,6 +739,7 @@ luaH_luakit_index(lua_State *L)
       /* push string properties */
       PS_CASE(CACHE_DIR,        globalconf.cache_dir)
       PS_CASE(CONFIG_DIR,       globalconf.config_dir)
+      PS_CASE(XDGPREFIX,        LUAKIT_CONFIG_PATH)
       PS_CASE(DATA_DIR,         globalconf.data_dir)
       PS_CASE(EXECPATH,         globalconf.execpath)
       PS_CASE(CONFPATH,         globalconf.confpath)

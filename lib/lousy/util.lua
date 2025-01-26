@@ -332,7 +332,7 @@ end
 function _M.find_config(f)
     if rstring.match(f, "^/") then return f end
     -- Search locations
-    local paths = { "config/"..f, luakit.config_dir.."/"..f }
+    local paths = { "config/"..f, luakit.config_dir.."/"..f, luakit.xdgprefix.."/luakit/"..f }
     for _, path in ipairs(xdg.system_config_dirs) do
         rtable.insert(paths, path.."/luakit/"..f)
     end

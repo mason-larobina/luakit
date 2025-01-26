@@ -211,7 +211,10 @@ luaH_parserc(const gchar *confpath, gboolean run)
     /* search users config dir (see: XDG_CONFIG_HOME) */
     g_ptr_array_add(paths, g_build_filename(globalconf.config_dir, "rc.lua", NULL));
 
-    /* search system config dirs (see: XDG_CONFIG_DIRS) */
+    /* search configured XDGPREFIX */
+    g_ptr_array_add(paths, g_build_filename(LUAKIT_CONFIG_PATH, "luakit", "rc.lua", NULL));
+
+   /* search system config dirs (see: XDG_CONFIG_DIRS) */
     config_dirs = g_get_system_config_dirs();
     for(; *config_dirs; config_dirs++)
         g_ptr_array_add(paths, g_build_filename(*config_dirs, "luakit", "rc.lua", NULL));

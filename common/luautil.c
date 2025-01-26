@@ -168,6 +168,9 @@ luaH_add_paths(lua_State *L, const gchar *config_dir)
     if (config_dir)
         g_ptr_array_add(paths, g_strdup(config_dir));
 
+    /* add configured XDGPREFIX */
+    g_ptr_array_add(paths, g_build_filename(LUAKIT_CONFIG_PATH, "luakit", NULL));
+
     /* add system config dirs (see: XDG_CONFIG_DIRS) */
     const gchar* const *config_dirs = g_get_system_config_dirs();
     for (; *config_dirs; config_dirs++)
