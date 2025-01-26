@@ -5,6 +5,7 @@
 
 *  Aidan Holm        (aidanholm) <aidanholm@gmail.com>       2016-2017
 *  Mason Larobina    (mason-l)   <mason.larobina@gmail.com>  2010-2012
+*  Stefan Hagen      (c0dev0id)  <sh@codevoid.de>            2020-2025
 
 **Contributors to luakit (A to Z)**
 
@@ -34,6 +35,8 @@
 *  Roman Leonov          (liaonau)    <rliaonau@gmail.com>         2011
 *  Stefan Bolte          (portix)     <portix@gmx.net>             2011
 *  Stjujsckij Nickolaj                <sterkrig@home.no>           2011
+*  Tao Nelson            (taobert)    <taobert@gmail.com>          2023
+*  Karel Balej           (balejk)     <balejk@matfyz.cz>           2024-2025
 *  Vasuvi                             <vasuvi@inbox.com>           2010-2011
 
 **Author of `lib/markdown.lua`**
