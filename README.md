@@ -4,11 +4,12 @@ luakit is a fast, light and simple to use micro-browser framework
 extensible by Lua using the WebKit web content engine and the GTK+
 toolkit.
 
+
 ### Don't Panic!
 
 You don't have to be a developer to use luakit on a daily basis. If you
-are familiar with vimperator, pentadactyl, jumanji, uzbl & etc you will
-find luakit behaves similarly out of the box.
+are familiar with quitebrowser, vim-browser, jumanji or extensions like
+Vimium or cVim etc, you will find luakit behaves similarly out of the box.
 
 
 ## Requirements
@@ -19,6 +20,7 @@ find luakit behaves similarly out of the box.
  * webkit2gtk
  * sqlite3
  * gstreamer (for video playback)
+ * lua-socket (for gopher support)
 
 
 ## Installing
@@ -38,6 +40,7 @@ Packaging status:
 
 [![Packaging Status](https://repology.org/badge/vertical-allrepos/luakit.svg?header=)](https://repology.org/project/luakit/versions)
 
+
 ## Installing from source
 
 Make sure you system fulfills the requirements listed above, then
@@ -53,6 +56,7 @@ Uninstall with:
     $ sudo make uninstall
 
 Note: If you are on BSD, you might need to use `gmake`.
+
 
 ## Use Luakit
 
@@ -138,7 +142,48 @@ you can execute the test suite with:
     $ make test
 
 
-## Tips and fixes:
+## Debugging Luakit
+
+**Enable debug output**
+
+Debug output can be turned on by starting luakit with the `--log` option.
+
+    $ luakit --log=verbose              # or: -v
+    $ luakit --log=all=debug            # or: --log=debug
+    $ luakit --log=lua/adblock=debug    # turn on debug on for the adblock module.
+
+Console output an also be seen within luakit using `:log` when the
+[log_chrome](https://luakit.github.io/docs/modules/log_chrome.html)
+module is loaded (default). Note that debug log level may lead to a race
+condition when the update of the log page leads to debug output, which
+causes an update of the :log page.
+
+**Execute lua within Luakit**
+
+If you want to examine the lua state at runtime, you can do so by
+running lua script within luakit. This will print "Hello World!"
+on the console.
+
+    :lua print("Hello World!");
+
+w:notify() can be used to show the output in the input/status bar. This
+example shows the configuration directory in the input/status bar.
+
+    :lua w:notify(luakit.config_dir)
+
+Print the lua package search paths:
+
+    :lua w:notify(package.path:gsub(";","\n"))
+
+To extend the lua debugging capabilities, you can copy "inspect.lua"
+from [here](https://github.com/kikito/inspect.lua) into the luakit
+configuration directory. Now you can inspect complex data types like
+tables:
+
+    :lua local inspect = require "inspect"; w:notify(inspect(webview))
+
+
+## Tips and Fixes:
 
 **Video playback**
 
@@ -147,19 +192,6 @@ buggy graphic drivers. It often helps to set LIBGL\_DRI3\_DISABLE before
 starting luakit:
 
     $ export LIBGL_DRI3_DISABLE=1
-
-**Webkit process limit**
-
-Since Webkit 2.26, the webkit engine used in luakit is creating a new
-process for each tab. This has the benefit that a webkit webview crash
-will only crash one tab. The downside is lower performance and increased
-memory use.
-
-If you value speed over stability, you can ask webkit to use one process
-for all tabs by setting WEBKIT\_USE\_SINGLE\_WEB\_PROCESS before
-starting luakit:
-
-    $ export WEBKIT_USE_SINGLE_WEB_PROCESS=1
 
 **HiDPI Monitor Configuration**
 
