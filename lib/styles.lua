@@ -113,6 +113,8 @@ end
 -- Routines to re-apply all stylesheets to a given webview
 
 local function update_stylesheet_application(view, domains, stylesheet, enabled)
+    local anymatch
+
     for _, part in ipairs(stylesheet.parts) do
         local match = false
         for _, w in ipairs(part.when) do
@@ -125,6 +127,21 @@ local function update_stylesheet_application(view, domains, stylesheet, enabled)
                 end
             end
         end
+        anymatch = anymatch or match
+        match = match and stylesheet.enabled and enabled
+        view.stylesheets[part.ss] = match
+    end
+
+    return anymatch
+end
+
+local function update_stylesheet_application_otherwise(view, domains, stylesheet, enabled)
+    -- Just check for otherwise items.
+    for _, part in ipairs(stylesheet.parts) do
+        local match = false
+        for _, w in ipairs(part.when) do
+            match = match or (w[1] == 'otherwise')
+        end
         match = match and stylesheet.enabled and enabled
         view.stylesheets[part.ss] = match
     end
@@ -133,11 +150,18 @@ end
 -- Routines to update the stylesheet menu
 
 local function update_stylesheet_applications(v)
+    local anymatch
     local enabled = v:emit_signal("enable-styles")
     enabled = enabled ~= false and true
     local domains = domains_from_uri(v.uri)
     for _, s in ipairs(stylesheets or {}) do
-        update_stylesheet_application(v, domains, s, enabled ~= false )
+        local a = update_stylesheet_application(v, domains, s, enabled ~= false )
+        anymatch = anymatch or a
+    end
+    if not anymatch then
+        for _, s in ipairs(stylesheets or {}) do
+            update_stylesheet_application_otherwise(v, domains, s, enabled ~= false)
+        end
     end
 end
 
@@ -254,7 +278,7 @@ local parse_moz_document_section = function (file, parts)
     while true do
         -- Strip off a subrule
         file, word, param = parse_moz_document_subrule(file)
-        local valid_words = { url = true, ["url-prefix"] = true, domain = true, regexp = true }
+        local valid_words = { url = true, ["url-prefix"] = true, domain = true, regexp = true, otherwise = true }
 
         if valid_words[word] then
             if word == "regexp" then
